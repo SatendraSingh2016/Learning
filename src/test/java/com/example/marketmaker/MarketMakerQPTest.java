@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.example.marketmaker.common.MarketMakerServer;
+import com.example.marketmaker.ReferencePriceSourceImpl;
+import com.example.marketmaker.ReferencePriceSource;
 
 public class MarketMakerQPTest {
 	
@@ -18,13 +20,16 @@ public class MarketMakerQPTest {
 	private final int MAX_CONN = 500;
 	private final int PORT = 1234;
 	private final String HOST = "localhost";
+	private final ReferencePriceSource referencePriceSource =
+			new ReferencePriceSourceImpl();
 	
 	@Before
 	public void setup(){
 		new Thread(){
 			@Override
 			public void run(){
-				server = new MarketMakerServer(PORT, MAX_CONN);
+				new ReferencePriceSourceListenerImpl(referencePriceSource);
+				server = new MarketMakerServer(PORT, MAX_CONN, referencePriceSource);
 				server.startServer();
 			}
 		}.start();
@@ -59,12 +64,15 @@ public class MarketMakerQPTest {
 							e.printStackTrace();
 						}
 						System.out.println("GOT from Server: "+ new String(b));
-						Double hardCodedQP = 1234.1155D;
+						Double hardCodedQP =123.50D;
 						Assert.assertEquals(hardCodedQP, new Double(new String(b)));
 				}
 			}).start();
 			client.setKeepAlive(true);
 			client.setTcpNoDelay(true);
+			//Setting Price
+			((ReferencePriceSourceImpl)referencePriceSource)
+			.updateRefPriceForSecurityId(1234, 123.50D);
 			StringBuilder sb = new StringBuilder();
 				sb.append(1234);
 				sb.append("_B_");

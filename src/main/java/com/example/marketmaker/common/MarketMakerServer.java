@@ -7,6 +7,8 @@ import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.example.marketmaker.ReferencePriceSource;
+
 /**
  * this class is used to create the server connection and able to handle
  * the multiple client connect at the moment. 
@@ -21,11 +23,14 @@ public class MarketMakerServer{
 	private final BlockingQueue<QuoteRequest> quoteReqQ;
 	private final Thread quotePriceProcessor;
 	
-	public MarketMakerServer(int port, int maxConn) {
+	public MarketMakerServer(int port, int maxConn, 
+			ReferencePriceSource referencePriceSource) {
+		
 		this.quoteReqQ = new LinkedBlockingQueue<>();
 		this.serverStatus = ServerStatus.RUNNING;
 		this.quotePriceProcessor = 
-				new Thread(new QuotePriceProcessor(quoteReqQ, serverStatus));
+				new Thread(new QuotePriceProcessor(quoteReqQ, serverStatus, 
+						  referencePriceSource));
 		try {
 			serverSocket = new ServerSocket(port, maxConn);
 			serverSocket.setReuseAddress(true);

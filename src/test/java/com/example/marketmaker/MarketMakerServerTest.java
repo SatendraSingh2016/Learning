@@ -18,12 +18,16 @@ public class MarketMakerServerTest {
 	private final int PORT = 1234;
 	private final String HOST = "localhost";
 	
+	private ReferencePriceSource referencePriceSource = 
+			new ReferencePriceSourceImpl();
+	
 	@Before
 	public void setup(){
 		new Thread(){
 			@Override
 			public void run(){
-				server = new MarketMakerServer(PORT, MAX_CONN);
+				new ReferencePriceSourceListenerImpl(referencePriceSource);
+				server = new MarketMakerServer(PORT, MAX_CONN, referencePriceSource);
 				server.startServer();
 			}
 		}.start();

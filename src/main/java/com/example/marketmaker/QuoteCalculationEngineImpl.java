@@ -13,7 +13,6 @@ public class QuoteCalculationEngineImpl implements QuoteCalculationEngine{
 		}else{
 			//get bid price
 		}
-		referencePrice = 1234.55D; //HardCoded 
 		return referencePrice;
 	}
 

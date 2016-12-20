@@ -6,8 +6,7 @@ import java.util.concurrent.BlockingQueue;
 import com.example.marketmaker.QuoteCalculationEngine;
 import com.example.marketmaker.QuoteCalculationEngineImpl;
 import com.example.marketmaker.ReferencePriceSource;
-import com.example.marketmaker.ReferencePriceSourceImpl;
-import com.example.marketmaker.ReferencePriceSourceListenerImpl;
+
 
 public class QuotePriceProcessor implements Runnable{
 	
@@ -18,19 +17,12 @@ public class QuotePriceProcessor implements Runnable{
 	private ReferencePriceSource referencePriceSource;
 	
 	public QuotePriceProcessor(BlockingQueue<QuoteRequest> quoteRequestQueue,
-			ServerStatus serverstatus){
-		init();
+			ServerStatus serverstatus,
+			ReferencePriceSource referencePriceSource){
 		this.quoteRequestQueue = quoteRequestQueue;
 		this.serverstatus = serverstatus;
-	}
-	
-	/**
-	 * initialize the quote pricing calculation utility
-	 */
-	private void init(){
-		quoteCalculationEngine = new QuoteCalculationEngineImpl();
-		referencePriceSource = new ReferencePriceSourceImpl();
-		new ReferencePriceSourceListenerImpl(referencePriceSource);
+		this.quoteCalculationEngine = new QuoteCalculationEngineImpl();
+		this.referencePriceSource = referencePriceSource;
 	}
 
 	@Override
@@ -40,6 +32,7 @@ public class QuotePriceProcessor implements Runnable{
 			try {
 
 				QuoteRequest request = quoteRequestQueue.take();
+				
 				if(request.getSocket().isConnected()){
 					Double quotePrice = 0D;
 					/**
