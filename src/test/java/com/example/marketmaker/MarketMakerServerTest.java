@@ -4,37 +4,33 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.example.marketmaker.common.MarketMakerServer;
 
 public class MarketMakerServerTest {
 	
-	private MarketMakerServer server;
+	private static MarketMakerServer server;
 	
-	private final int MAX_CONN = 500;
-	private final int PORT = 1234;
-	private final String HOST = "localhost";
+	private static final int MAX_CONN = 100;
+	private static final int PORT = 1234;
+	private static final String HOST = "localhost";
 	
-	private ReferencePriceSource referencePriceSource = 
+	private static ReferencePriceSource referencePriceSource = 
 			new ReferencePriceSourceImpl();
 	
-	@Before
-	public void setup(){
-		new Thread(){
-			@Override
-			public void run(){
-				new ReferencePriceSourceListenerImpl(referencePriceSource);
-				server = new MarketMakerServer(PORT, MAX_CONN, referencePriceSource);
-				server.startServer();
-			}
-		}.start();
+	@BeforeClass
+	public static void setup(){
+		new ReferencePriceSourceListenerImpl(referencePriceSource);
+		server = new MarketMakerServer(PORT, MAX_CONN, referencePriceSource);
+		server.startServer();
+		System.out.println("Calling setup....");
 	}
 	
-	@After
-	public void cleanup(){
+	@AfterClass
+	public static void cleanup(){
 		server.stopServer();
 		server=null;
 	}
@@ -61,12 +57,6 @@ public class MarketMakerServerTest {
 				sb.append('\u0001');
 				client.getOutputStream().write(sb.toString().getBytes());
 			}
-			try {
-				Thread.sleep(1000); // ensuring to server read done
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			//client.close();
 			try {
 				Thread.sleep(10000); // ensuring to server read done
 			} catch (InterruptedException e) {
@@ -106,12 +96,6 @@ public class MarketMakerServerTest {
 							sb.append('\u0001');
 							client.getOutputStream().write(sb.toString().getBytes());
 						}
-						try {
-							Thread.sleep(1000); // ensuring to server read done
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						//client.close();
 						try {
 							Thread.sleep(10000); // ensuring to server read done
 						} catch (InterruptedException e) {

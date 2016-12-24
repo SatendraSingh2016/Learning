@@ -5,7 +5,7 @@ package com.example.marketmaker;
  */
 public interface ReferencePriceSource {
     /**
-     * Subscribe to changes to refernce prices.
+     * Subscribe to changes to reference prices.
      *
      * @param listener callback interface for changes
      */

@@ -25,14 +25,9 @@ public class MarketMakerQPTest {
 	
 	@Before
 	public void setup(){
-		new Thread(){
-			@Override
-			public void run(){
-				new ReferencePriceSourceListenerImpl(referencePriceSource);
-				server = new MarketMakerServer(PORT, MAX_CONN, referencePriceSource);
-				server.startServer();
-			}
-		}.start();
+		new ReferencePriceSourceListenerImpl(referencePriceSource);
+		server = new MarketMakerServer(PORT, MAX_CONN, referencePriceSource);
+		server.startServer();
 	}
 	
 	@After
@@ -42,8 +37,7 @@ public class MarketMakerQPTest {
 	}
 	
 	@Test
-	public void canSendQuoteRequestAndGetQuotePriceTest(){
-		
+	public void canSendQuoteRequestAndGetQuotePriceTest(){	
 		try {
 			try {
 				Thread.sleep(2000); // ensuring to server is uptodate
@@ -70,21 +64,17 @@ public class MarketMakerQPTest {
 			}).start();
 			client.setKeepAlive(true);
 			client.setTcpNoDelay(true);
+			
 			//Setting Price
 			((ReferencePriceSourceImpl)referencePriceSource)
 			.updateRefPriceForSecurityId(1234, 123.50D);
+			
 			StringBuilder sb = new StringBuilder();
 				sb.append(1234);
 				sb.append("_B_");
 				sb.append(1000);
 				sb.append('\u0001');
 				client.getOutputStream().write(sb.toString().getBytes());
-			try {
-				Thread.sleep(1000); // ensuring to server read done
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			//client.close();
 			try {
 				Thread.sleep(10000); // ensuring to server read done
 			} catch (InterruptedException e) {

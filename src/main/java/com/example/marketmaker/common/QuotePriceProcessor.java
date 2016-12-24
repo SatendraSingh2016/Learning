@@ -28,7 +28,7 @@ public class QuotePriceProcessor implements Runnable{
 	@Override
 	public void run() {
 
-		while(serverstatus == ServerStatus.RUNNING){
+		while(serverstatus.isRunning()){ 
 			try {
 
 				QuoteRequest request = quoteRequestQueue.take();

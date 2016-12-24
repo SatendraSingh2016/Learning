@@ -19,15 +19,15 @@ import com.example.marketmaker.ReferencePriceSource;
 public class MarketMakerServer{
 	
 	private ServerSocket serverSocket;
-	private volatile ServerStatus serverStatus;
 	private final BlockingQueue<QuoteRequest> quoteReqQ;
+	private volatile ServerStatus serverStatus;
 	private final Thread quotePriceProcessor;
 	
 	public MarketMakerServer(int port, int maxConn, 
 			ReferencePriceSource referencePriceSource) {
 		
 		this.quoteReqQ = new LinkedBlockingQueue<>();
-		this.serverStatus = ServerStatus.RUNNING;
+		serverStatus = ServerStatus.RUNNING;
 		this.quotePriceProcessor = 
 				new Thread(new QuotePriceProcessor(quoteReqQ, serverStatus, 
 						  referencePriceSource));
@@ -47,20 +47,26 @@ public class MarketMakerServer{
 	 * each client with different thread
 	 */
 	public void startServer(){
-		quotePriceProcessor.start();
-		while(serverStatus == ServerStatus.RUNNING){
-			System.out.println("waiting for client connection request ...");
-			try {
-				final Socket client = serverSocket.accept();
-				new Thread(new QuoteRequestHandler(serverStatus, client, quoteReqQ)).start();
-			} catch (IOException e) {
-				e.printStackTrace();
+		new Thread(){
+			@Override
+			public void run(){
+				quotePriceProcessor.start();
+				while(serverStatus.isRunning()){
+					try {
+						System.out.println("Waiting for client...");
+						final Socket client = serverSocket.accept();
+						if(client!= null && client.isConnected())
+						new Thread(new QuoteRequestHandler(serverStatus, client, quoteReqQ)).start();
+					} catch (IOException e) {
+						e.printStackTrace();						
+					}
+				}
 			}
-		}
+		}.start();
 	}
 	
 	public void stopServer(){
-		serverStatus = ServerStatus.STOPPED;
+		serverStatus.setRunning(false);
 		try {
 			quotePriceProcessor.interrupt();
 			serverSocket.close();

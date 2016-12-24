@@ -32,7 +32,7 @@ public class QuoteRequestHandler implements Runnable {
 	
 	@Override
 	public void run() {
-		while(serverStatus == ServerStatus.RUNNING){
+		while(serverStatus.isRunning()){
 			try {
 				socketReader.readMultipleMessagesFromSocket(client);				
 			} catch (IOException e) {
